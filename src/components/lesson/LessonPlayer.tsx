@@ -12,6 +12,7 @@ import 'prismjs/themes/prism-tomorrow.css' // Dark theme
 import { Loader2, Play, CheckCircle, ArrowRight, Heart } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import GameOverModal from '@/components/modals/GameOverModal'
+import { motion } from 'framer-motion'
 
 interface LessonPlayerProps {
     levelId: number
@@ -110,6 +111,8 @@ export default function LessonPlayer({ levelId }: LessonPlayerProps) {
 
     if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-accent-primary" /></div>
 
+    const [showHint, setShowHint] = useState(false)
+
     return (
         <div className="flex flex-col md:flex-row h-screen bg-bg-primary text-text-primary overflow-hidden relative">
             {lives <= 0 && <GameOverModal />}
@@ -129,8 +132,29 @@ export default function LessonPlayer({ levelId }: LessonPlayerProps) {
                     </div>
                 </div>
 
-                <div className="prose prose-invert max-w-none">
+                <div className="prose prose-invert max-w-none mb-8">
                     <ReactMarkdown>{lesson.content_markdown}</ReactMarkdown>
+                </div>
+
+                {/* Hint Section */}
+                <div className="mt-auto border-t border-bg-tertiary pt-4">
+                    <button
+                        onClick={() => setShowHint(!showHint)}
+                        className="text-sm text-accent-gold hover:underline flex items-center gap-2 mb-2"
+                    >
+                        {showHint ? '💡 Esconder Dica' : '💡 Precisa de uma dica?'}
+                    </button>
+
+                    {showHint && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="bg-accent-gold/10 border border-accent-gold/30 rounded-lg p-3 text-sm text-accent-gold"
+                        >
+                            <strong>Dica:</strong> Tente usar <code>console.log()</code> para ver o resultado.
+                            {/* In a real app, fetch specific hint from DB */}
+                        </motion.div>
+                    )}
                 </div>
             </div>
 

@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import clsx from 'clsx'
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface FlashCardProps {
     front: string
@@ -20,7 +22,7 @@ export default function FlashCard({ front, back, category, onFlip }: FlashCardPr
     }
 
     return (
-        <div className="perspective-1000 w-full max-w-xl mx-auto h-80 cursor-pointer" onClick={handleFlip}>
+        <div className="perspective-1000 w-full max-w-xl mx-auto h-96 cursor-pointer" onClick={handleFlip}>
             <motion.div
                 className="relative w-full h-full transition-all duration-500 preserve-3d"
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -38,10 +40,34 @@ export default function FlashCard({ front, back, category, onFlip }: FlashCardPr
 
                 {/* Back */}
                 <div
-                    className="absolute inset-0 w-full h-full bg-bg-tertiary border-2 border-accent-primary rounded-2xl p-8 flex flex-col items-center justify-center backface-hidden shadow-xl"
+                    className="absolute inset-0 w-full h-full bg-bg-tertiary border-2 border-accent-primary rounded-2xl p-6 flex flex-col items-center justify-center backface-hidden shadow-xl overflow-y-auto"
                     style={{ transform: 'rotateY(180deg)' }}
                 >
-                    <h3 className="text-xl text-center text-white leading-relaxed">{back}</h3>
+                    <div className="prose prose-invert prose-sm max-w-none w-full text-left">
+                        <ReactMarkdown
+                            components={{
+                                code({ node, inline, className, children, ...props }: any) {
+                                    const match = /language-(\w+)/.exec(className || '')
+                                    return !inline && match ? (
+                                        <SyntaxHighlighter
+                                            style={tomorrow}
+                                            language={match[1]}
+                                            PreTag="div"
+                                            {...props}
+                                        >
+                                            {String(children).replace(/\n$/, '')}
+                                        </SyntaxHighlighter>
+                                    ) : (
+                                        <code className={className} {...props}>
+                                            {children}
+                                        </code>
+                                    )
+                                }
+                            }}
+                        >
+                            {back}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             </motion.div>
         </div>
